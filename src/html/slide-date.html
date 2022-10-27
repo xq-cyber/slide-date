@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>仿IOS滑动选择日期</title>
+  <style>
+    *{
+      margin:0;
+      padding:0;
+    }
+    li{list-style: none;}
+    .scroll-wheel-container{
+      padding:0 32px;
+    }
+    .scroll-wheel-box{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      user-select: none;
+      position:relative;
+    }
+    .scroll-wheel{
+      position:relative;
+      overflow-y:scroll;
+      user-select: none;
+      height:240px;
+    }
+    .scroll-wheel ul{
+      padding-top:100px;
+      padding-bottom:100px;
+    }
+    .scroll-wheel::-webkit-scrollbar{
+      display:none;
+    }
+    .scroll-item{
+      height:40px;
+      line-height: 40px;
+      text-align: center;
+    }
+    .mask{
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      pointer-events: none;
+    }
+    .top-line{
+      box-sizing: border-box;
+      position:absolute;
+      left:0;
+      top:-1px;
+      width:100%;
+      height:calc(50% - 20px);
+      background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,.5));
+      pointer-events: none;
+      border-bottom:1px solid #eee;
+    }
+    .bottom-line{
+      box-sizing: border-box;
+      position:absolute;
+      left:0;
+      bottom:-1px;
+      width:100%;
+      height:calc(50% - 20px);
+      background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,.5));
+      pointer-events: none;
+      border-top:1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <div class="scroll-wheel-container">
+    <div class="scroll-wheel-box">
+      <div id="scroll-wheel-first" class="scroll-wheel" onscroll="scrollFn('scroll-wheel-first',40)">
+        <ul></ul>
+      </div>
+      <div id="scroll-wheel-second" class="scroll-wheel" onscroll="scrollFn('scroll-wheel-second',40)">
+        <ul></ul>
+      </div>
+      <div id="scroll-wheel-third" class="scroll-wheel" onscroll="scrollFn('scroll-wheel-third',40)">
+        <ul></ul>
+      </div>
+      <div class="mask">
+        <div class="top-line"></div>
+        <div class="bottom-line"></div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:center;padding:30px 30px;">
+    <span style="display:block;width:100%;padding:10px 0;text-align: center;background:#5b89fe;border-radius:4px;color:white;" onclick="getDate()">获取日期</span>
+  </div>
+</body>
+</html>
+
+<script>
+    const first = document.getElementById('scroll-wheel-first'),
+          second = document.getElementById('scroll-wheel-second'),
+          third = document.getElementById('scroll-wheel-third'),
+          firstUl = first.children[0],
+          secondtUl = second.children[0],
+          thirdtUl = third.children[0]
+      let yearLi = '',
+          monthLi = '',
+          dayLi = '',
+          yearList = [],
+          monthList = [],
+          dayList = []
+    for(let i=1970;i<=2040;i++){
+      yearLi += `<li class="scroll-item">${i}</li>`
+      yearList.push(i)
+    }
+    for(let i=1;i<=12;i++){
+      monthLi += `<li class="scroll-item">${i}</li>`
+      monthList.push(i)
+    }
+    for(let i=1;i<=31;i++){
+      dayLi += `<li class="scroll-item">${i}</li>`
+      dayList.push(i)
+    }
+    firstUl.innerHTML = yearLi
+    secondtUl.innerHTML = monthLi
+    thirdtUl.innerHTML = dayLi
+
+    let timer,
+        t1=0,
+        t2=0,
+        selectYear=1970,
+        selectMonth=1,
+        selectDay=1,
+        mapList=[];
+
+    const initDate = (DATE,itemHeight) => {
+      const year = DATE ? new Date(DATE).getFullYear() : new Date().getFullYear(),
+      month = DATE ? new Date(DATE).getMonth()+1 : new Date().getMonth()+1,
+      date = DATE ? new Date(DATE).getDate() : new Date().getDate()
+      yearList.map((item,index)=>{
+        if(year === item){
+          document.getElementById('scroll-wheel-first').scrollTop = index*itemHeight
+          selectYear = item
+        }
+      })
+      monthList.map((item,index)=>{
+        if(month === item){
+          document.getElementById('scroll-wheel-second').scrollTop = index*itemHeight
+          selectMonth = item
+        }
+      })
+      dayList.map((item,index)=>{
+        if(date === item){
+          document.getElementById('scroll-wheel-third').scrollTop = index*itemHeight
+          selectDay = item
+        }
+      })
+    }
+    initDate("2022-6-18",40)
+
+    const scrollFn = (id,itemHeight) => {
+      const {clientHeight,scrollHeight,scrollTop} = document.getElementById(id)
+      const position = scrollTop/itemHeight
+      const mathRound = Math.round(position)
+      mapList = id === 'scroll-wheel-first' ? yearList : (id === 'scroll-wheel-second' ? monthList : dayList)
+      // 判断是否完成滚动
+      clearTimeout(timer)
+      t1 = scrollTop
+      timer = setTimeout(()=>{isScrollEnd()},10)
+      const isScrollEnd = () => {
+        t2 = scrollTop
+        if(t2 === t1){
+          mapList.map((item,index)=>{
+            if(mathRound === index){
+              document.getElementById(id).scrollTo({top: mathRound*itemHeight, behavior: 'smooth'})
+              switch(id){
+                case "scroll-wheel-first":
+                  selectYear = mapList[index]
+                  break;
+                case "scroll-wheel-second":
+                  const year = new Date().getFullYear()
+                  const monthDay = new Date(year,item,0).getDate()
+                  monthLi = ``
+                  for(let i=1;i<=monthDay;i++){
+                    monthLi += `<li class="scroll-item">${i}</li>`
+                  }
+                  thirdtUl.innerHTML = monthLi
+                  selectMonth = mapList[index]
+                  break;
+                case "scroll-wheel-third":
+                  selectDay = mapList[index]
+                  break;
+              }
+            }
+          })
+        }
+      }
+    }
+    
+    const getDate = ()=>{
+      console.log(selectYear,selectMonth,selectDay,"getDate")
+    }
+</script>
