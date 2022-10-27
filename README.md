@@ -1,12 +1,18 @@
 # slide-date
 
-> # vue2&原生仿IOS滑动选择时间
+> 仿IOS
+>
+> vue2滑动选择时间
+>
+> 原生javascript滑动选择时间
+>
+> 
 
 ## Build Setup
 
 ``` bash
 # 注意事项
-没什么需要注意 代码不复杂 直接看源码即可
+没什么需要注意 代码不复杂 直接看源码即可(原生js版在html文件夹)
 
 # install dependencies
 npm install
