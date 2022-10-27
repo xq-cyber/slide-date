@@ -1,10 +1,13 @@
-# my-item
+# slide-date
 
-> A Vue.js project
+> # vue2&原生仿IOS滑动选择时间
 
 ## Build Setup
 
 ``` bash
+# 注意事项
+没什么需要注意 代码不复杂 直接看源码即可
+
 # install dependencies
 npm install
 
