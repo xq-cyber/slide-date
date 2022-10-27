@@ -1,6 +1,6 @@
 # slide-date
 
-> # vue2&原生仿IOS滑动选择时间
+> # vue2&原生javascript仿IOS滑动选择时间
 
 ## Build Setup
 
